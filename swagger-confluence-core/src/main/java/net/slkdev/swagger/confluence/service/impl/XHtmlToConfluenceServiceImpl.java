@@ -699,6 +699,8 @@ public class XHtmlToConfluenceServiceImpl implements XHtmlToConfluenceService {
             linkElement.unwrap();
         }
 
+        addRoutePageProperties(document);
+
         reformatXHtmlHeadings(document, "h2");
         reformatXHtmlHeadings(document, "h3");
         reformatXHtmlHeadings(document, "#toctitle");
@@ -739,4 +741,98 @@ public class XHtmlToConfluenceServiceImpl implements XHtmlToConfluenceService {
         }
     }
 
+    private static void addRoutePageProperties(final Document document){
+        /* For Each route ("sect2"), add one of these:
+
+      <ac:structured-macro ac:name="details" ac:schema-version="1" ac:macro-id="cfb21828-c9fd-4ef2-929f-33db038c4086">
+        <ac:parameter ac:name="hidden">true</ac:parameter>
+        <ac:parameter ac:name="id">route</ac:parameter>
+        <ac:rich-text-body>
+          <table class="wrapped">
+            <colgroup>
+              <col />
+              <col />
+            </colgroup>
+            <tbody>
+              <tr>
+                <td colspan="1">Tag</td>
+                <td colspan="1">swagger</td>
+              </tr>
+              <tr>
+                <td>Description</td>
+                <td>
+                  <p>Get swagger spec for all discovered services.</p>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="1">Method</td>
+                <td colspan="1">GET</td>
+              </tr>
+              <tr>
+                <td colspan="1">URL</td>
+                <td colspan="1">/swagger/spec</td>
+              </tr>
+            </tbody>
+          </table>
+        </ac:rich-text-body>
+      </ac:structured-macro>
+
+         */
+
+        final SwaggerConfluenceConfig swaggerConfluenceConfig = SWAGGER_CONFLUENCE_CONFIG.get();
+        final String macroId = swaggerConfluenceConfig.getMacroId();
+        if (macroId == null || macroId == "") {
+            return;
+        }
+
+        for(final Element element : document.select(".sect2")){
+            final Element pre = element.select("div.literalblock > .content > pre").first();
+            final Element desc_element = element.select("h3").first();
+            final Element tag_element = element.select("ul > li > p").first();
+
+            final String[] route = (pre == null ? "" : pre.text()).split(" ", 2);
+            final String description = desc_element == null ? "" : desc_element.text();
+            final String tag = tag_element == null ? "" : tag_element.text();
+            final String id = swaggerConfluenceConfig.getPropertiesId();
+
+            if (route.length != 2) {
+                continue;
+            }
+
+            final Element macro = element.prependElement("ac:structured-macro");
+            macro
+                .attr("ac:name", "details")
+                .attr("ac:schema-version", "1")
+                .attr("ac:macro-id", macroId);
+            macro.appendElement("ac:parameter")
+                .attr("ac:name", "hidden")
+                .text("true");
+            if (id != null) {
+                macro.appendElement("ac:parameter")
+                    .attr("ac:name", "id")
+                    .text(id);
+            }
+
+            final Element table = macro.appendElement("ac:rich-text-body")
+                .appendElement("table").attr("class", "wrapped")
+                .appendElement("tbody");
+
+            table.appendElement("tr")
+                .appendElement("td").attr("colspan", "1").text("Tag").parent()
+                .appendElement("td").attr("colspan", "1").text(tag);
+
+            table.appendElement("tr")
+                .appendElement("td").attr("colspan", "1").text("Method").parent()
+                .appendElement("td").attr("colspan", "1").text(route[0]);
+
+            table.appendElement("tr")
+                .appendElement("td").attr("colspan", "1").text("URL").parent()
+                .appendElement("td").attr("colspan", "1").text(route[1]);
+
+            table.appendElement("tr")
+                .appendElement("td").attr("colspan", "1").text("Description").parent()
+                .appendElement("td").attr("colspan", "1").text(description);
+
+        }
+    }
 }

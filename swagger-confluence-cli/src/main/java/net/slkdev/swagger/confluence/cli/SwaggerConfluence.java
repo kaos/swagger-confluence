@@ -79,7 +79,10 @@ public class SwaggerConfluence {
         options.addOption("p", "prefix", true, "Prefix to use for article titles to ensure uniqueness");
         options.addOption("t", "title", true, "Base title to use for the root article of the API doc");
         options.addOption("u", "confluence-rest-api-url", true, "URL to the confluence REST API");
-
+        options.addOption("P", "page-properties-macro-id", true, "Add hidden page properties for each route.");
+        options.addOption("I", "page-properties-id", true, "Optional ID used to identify a particular " +
+                          "Page Properties macro on a page. Specify this ID in the Page Properties Report " +
+                          "to include summary information from macros with this ID only.");
         return options;
     }
 
@@ -127,6 +130,8 @@ public class SwaggerConfluence {
         swaggerConfluenceConfig.setSpaceKey(commandLine.getOptionValue("k"));
         swaggerConfluenceConfig.setSwaggerSchema(commandLine.getOptionValue("s"));
         swaggerConfluenceConfig.setTitle(commandLine.getOptionValue("t"));
+        swaggerConfluenceConfig.setMacroId(commandLine.getOptionValue("P"));
+        swaggerConfluenceConfig.setPropertiesId(commandLine.getOptionValue("I"));
 
         return swaggerConfluenceConfig;
     }

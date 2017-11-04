@@ -31,6 +31,8 @@ public class SwaggerConfluenceConfig {
     private String spaceKey;
     private String swaggerSchema;
     private String title;
+    private String macroId;
+    private String propertiesId;
 
     public SwaggerConfluenceConfig() {
         generateNumericPrefixes = true;
@@ -140,6 +142,22 @@ public class SwaggerConfluenceConfig {
 
     public void setTitle(final String title) {
         this.title = title;
+    }
+
+    public String getMacroId() {
+        return macroId;
+    }
+
+    public void setMacroId(final String macroId) {
+        this.macroId = macroId;
+    }
+
+    public String getPropertiesId() {
+        return propertiesId;
+    }
+
+    public void setPropertiesId(final String propertiesId) {
+        this.propertiesId = propertiesId;
     }
 
 }
